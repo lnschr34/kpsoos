@@ -412,7 +412,7 @@ function renderEntries() {
       ${
         entry.tags?.length
           ? entry.tags.map(t => `<span class="tagBadge">${t}</span>`).join("")
-          : ""
+          : " "
       }<br><br>
 
       ${!mobileReadOnly ? `
