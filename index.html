@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestionnaire local sécurisé</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Material Icons (Filled + Outlined) -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
+  <link rel="manifest" href="manifest.json">
+
+</head>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+  }
+</script>
+
+
+<body>
+
+  <div id="messageContainer"></div>
+
+  <header>
+    <h1>Gestionnaire local sécurisé</h1>
+  </header>
+
+  <nav class="topMenu hidden" id="topMenu">
+    <button id="menuAddEntry"><span class="material-icons-outlined">add</span> Ajouter</button>
+    <button id="menuExport"><span class="material-icons-outlined">save</span> Exporter</button>
+    <button id="menuLogout"><span class="material-icons-outlined">logout</span> Déconnexion</button>
+    <button id="menuThemeToggle" class="secondary">
+      <span class="material-icons-outlined" id="themeIcon">dark_mode</span>
+    </button>
+  </nav>
+
+  <section id="loadSection">
+    <div class="container">
+      <h2>Votre coffre</h2>
+
+      <div class="loadActions">
+        <div class="card">
+          <h3><span class="material-icons-outlined">folder_open</span> Ouvrir un coffre</h3>
+          <input type="password" id="masterPassword" placeholder="Mot de passe maître">
+          <button class="primary" id="openVaultBtn">
+            <span class="material-icons-outlined">login</span> Ouvrir
+          </button>
+        </div>
+
+        <div class="card">
+          <h3><span class="material-icons-outlined">create_new_folder</span> Nouveau coffre</h3>
+          <button class="secondary" id="openCreateModal">
+            <span class="material-icons-outlined">add_box</span> Créer
+          </button>
+        </div>
+
+        <button id="mobileImportBtn" class="primary hidden">
+          <span class="material-icons-outlined">upload_file</span>
+          Importer un coffre (.dat)
+        </button>
+
+        <input type="file" id="mobileFileInput" accept=".dat" class="hidden">
+
+      </div>
+    </div>
+  </section>
+
+  <!-- MODAL -->
+  <div id="modalOverlay" class="overlay hidden">
+    <div class="modal">
+      <h2>Créer un nouveau coffre</h2>
+      <p>Définissez un mot de passe maître.</p>
+
+      <input type="password" id="newVaultPassword" placeholder="Mot de passe maître">
+
+      <button class="primary" id="newVaultBtn">
+        <span class="material-icons-outlined">check</span> Créer
+      </button>
+      <button class="secondary" id="closeModal">
+        <span class="material-icons-outlined">close</span> Annuler
+      </button>
+    </div>
+  </div>
+
+  <section id="appSection" class="hidden">
+    <div class="container">
+
+      <!-- SEARCH BAR -->
+      <div class="searchBar">
+        <input id="searchInput" placeholder="Rechercher...">
+
+        <select id="searchCategory">
+          <option value="">Toutes catégories</option>
+          <option>Maison</option>
+          <option>Banque / Finance</option>
+          <option>Énergie</option>
+          <option>Assurance</option>
+          <option>Citoyen</option>
+          <option>Comptes mails</option>
+          <option>Utiles</option>
+        </select>
+
+        <select id="searchTag">
+          <option value="">Tous tags</option>
+          <option>Christophe</option>
+          <option>Bérangère</option>
+          <option>Alexis</option>
+          <option>Orange</option>
+          <option>UM</option>
+        </select>
+
+        <select id="sortBy">
+          <option value="name">Tri : Nom</option>
+          <option value="category">Tri : Catégorie</option>
+          <option value="createdAt">Tri : Création</option>
+          <option value="updatedAt">Tri : Modification</option>
+        </select>
+      </div>
+
+      <!-- ADD ENTRY FORM -->
+      <div id="addEntryForm" class="card hidden addForm">
+        <h3><span class="material-icons-outlined">add_circle</span> Ajouter une entrée</h3>
+
+        <input id="newName" placeholder="Nom du service">
+        <input id="newLogin" placeholder="Identifiant">
+        <input id="newSecret" placeholder="Mot de passe / code">
+        <input id="newUrl" placeholder="URL (optionnel)">
+
+        <select id="newCategory">
+          <option value="">-- Catégorie --</option>
+          <option>Maison</option>
+          <option>Banque / Finance</option>
+          <option>Énergie</option>
+          <option>Assurance</option>
+          <option>Citoyen</option>
+          <option>Comptes mails</option>
+          <option>Utiles</option>
+        </select>
+
+        <label>Tags :</label>
+        <div class="tagsContainer">
+          <label><input type="checkbox" class="tagCheckbox" value="Christophe"> Christophe</label>
+          <label><input type="checkbox" class="tagCheckbox" value="Bérangère"> Bérangère</label>
+          <label><input type="checkbox" class="tagCheckbox" value="Alexis"> Alexis</label>
+          <label><input type="checkbox" class="tagCheckbox" value="Orange"> Orange</label>
+          <label><input type="checkbox" class="tagCheckbox" value="UM"> UM</label>
+        </div>
+
+        <textarea id="newNotes" placeholder="Notes"></textarea>
+
+        <button class="primary" id="addBtn">
+          <span class="material-icons-outlined">add</span> Ajouter
+        </button>
+      </div>
+
+      <div id="entries" class="entriesGrid"></div>
+
+    </div>
+  </section>
+
+  <script src="crypto.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

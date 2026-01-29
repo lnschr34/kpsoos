@@ -1,0 +1,410 @@
+/* ---------------------------------------------------------
+   STYLE V1 — Minimaliste & Épuré (type Apple / Notion)
+   Version complète + mode mobile + 3 colonnes + watermark
+--------------------------------------------------------- */
+
+/* ---------------------------------------------------------
+   VARIABLES (clair + sombre)
+--------------------------------------------------------- */
+:root {
+  --bg: #fafafa;
+  --bg-card: #ffffff;
+  --text: #222;
+  --text-muted: #666;
+  --primary: #3a6df0;
+  --primary-hover: #2f57c8;
+  --border: #e5e5e5;
+  --shadow-soft: 0 4px 14px rgba(0,0,0,0.06);
+  --radius: 12px;
+
+  --message-bg: #eaf1ff;
+  --message-text: #1a3a7a;
+
+  --transition: 0.25s ease;
+}
+
+body.dark {
+  --bg: #1a1a1a;
+  --bg-card: #232323;
+  --text: #f2f2f2;
+  --text-muted: #aaaaaa;
+  --primary: #8ab4ff;
+  --primary-hover: #6d9df5;
+  --border: #333;
+  --shadow-soft: 0 4px 18px rgba(0,0,0,0.5);
+
+  --message-bg: #1f2a38;
+  --message-text: #c9e1ff;
+}
+
+/* ---------------------------------------------------------
+   GLOBAL
+--------------------------------------------------------- */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  transition: background var(--transition), color var(--transition);
+  line-height: 1.55;
+}
+
+.hidden {
+  display: none !important;
+}
+
+header {
+  background: var(--primary);
+  color: white;
+  padding: 28px 20px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft);
+  transition: background var(--transition);
+}
+
+/* ---------------------------------------------------------
+   LAYOUT GLOBAL
+--------------------------------------------------------- */
+section {
+  padding: 40px 20px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1400px; /* élargi pour 3 cartes */
+  margin: 0 auto;
+}
+
+/* ---------------------------------------------------------
+   BUTTONS
+--------------------------------------------------------- */
+button {
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease, background var(--transition), opacity var(--transition);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.primary {
+  background: var(--primary);
+  color: white;
+}
+
+button.primary:hover {
+  background: var(--primary-hover);
+}
+
+button.secondary {
+  background: #f0f0f0;
+  color: #333;
+}
+
+body.dark button.secondary {
+  background: #2e2e2e;
+  color: #eee;
+}
+
+/* ---------------------------------------------------------
+   CARDS
+--------------------------------------------------------- */
+.card,
+.entry {
+  background: var(--bg-card);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  margin-bottom: 24px;
+  animation: fadeIn 0.4s ease;
+  transition: background var(--transition), box-shadow var(--transition);
+}
+
+.entry:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+/* ---------------------------------------------------------
+   INPUTS
+--------------------------------------------------------- */
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-size: 15px;
+  background: var(--bg-card);
+  color: var(--text);
+  transition: background var(--transition), border var(--transition), color var(--transition);
+  margin-bottom: 14px;
+  box-sizing: border-box;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(58,109,240,0.15);
+}
+
+/* ---------------------------------------------------------
+   SEARCH BAR
+--------------------------------------------------------- */
+.searchBar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+/* ---------------------------------------------------------
+   TOP MENU
+--------------------------------------------------------- */
+.topMenu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--bg-card);
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  transition: background var(--transition), border var(--transition);
+}
+
+.topMenu button {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------
+   TAGS
+--------------------------------------------------------- */
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tagBadge {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 4px 10px;
+  border-radius: var(--radius);
+  font-size: 12px;
+  margin-right: 6px;
+  animation: fadeIn 0.3s ease;
+}
+
+/* ---------------------------------------------------------
+   ENTRIES GRID (3 colonnes)
+--------------------------------------------------------- */
+.entriesGrid {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+/* ---------------------------------------------------------
+   ENTRY HEADER (icône + titre)
+--------------------------------------------------------- */
+.entryHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.entryIcon {
+  font-size: 26px;
+  color: var(--primary);
+  opacity: 0.9;
+}
+
+.entryTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------
+   WATERMARK (pictogramme dans le coin)
+--------------------------------------------------------- */
+.entry {
+  position: relative;
+}
+
+.entryCornerIcon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.entryCornerIcon .material-icons-outlined {
+  font-size: 42px;
+}
+
+/* ---------------------------------------------------------
+   SECRET INLINE
+--------------------------------------------------------- */
+.entrySecretLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 14px 0;
+}
+
+.entrySecretLabel {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.entrySecretValue {
+  font-family: monospace;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.copyInlineIcon {
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.copyInlineIcon:hover {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------
+   NOTES BLOCK
+--------------------------------------------------------- */
+.entryNotesBlock {
+  background: rgba(0,0,0,0.04);
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  margin: 6px 0 14px 0;
+  line-height: 1.45;
+  color: var(--text);
+}
+
+body.dark .entryNotesBlock {
+  background: rgba(255,255,255,0.06);
+}
+
+/* ---------------------------------------------------------
+   MESSAGES INLINE (C3-A)
+--------------------------------------------------------- */
+#messageContainer {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  background: var(--message-bg);
+  color: var(--message-text);
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  min-width: 240px;
+  animation: slideInRight 0.4s ease, fadeOut 0.4s ease 2.6s forwards;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ---------------------------------------------------------
+   ANIMATIONS
+--------------------------------------------------------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateX(40px); }
+}
+
+/* ---------------------------------------------------------
+   MODE MOBILE LECTURE SEULE
+--------------------------------------------------------- */
+body.mobile-readonly #menuAddEntry,
+body.mobile-readonly #menuExport,
+body.mobile-readonly #menuLogout,
+body.mobile-readonly #openCreateModal,
+body.mobile-readonly #openVaultBtn,
+body.mobile-readonly #addEntryForm {
+  display: none !important;
+}
+
+body.mobile-readonly .editBtn,
+body.mobile-readonly .deleteBtn {
+  display: none !important;
+}
+
+/* ---------------------------------------------------------
+   MOBILE
+--------------------------------------------------------- */
+@media (max-width: 600px) {
+  header {
+    font-size: 18px;
+    padding: 20px;
+  }
+
+  .topMenu {
+    justify-content: center;
+  }
+
+  .modal {
+    width: 92%;
+  }
+}
+
+body.mobile-readonly #mobileImportBtn {
+  display: inline-flex !important;
+}
+
+body.mobile-readonly #openVaultBtn,
+body.mobile-readonly #openCreateModal {
+  display: none !important;
+}
