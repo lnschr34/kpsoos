@@ -9,37 +9,67 @@ if (isMobile) {
   document.body.classList.add("mobile-readonly");
 }
 
-if (mobileReadOnly) {
-  document.getElementById("mobileImportBtn").classList.remove("hidden");
+/* ============================================================
+   ANTI-BRUTEFORCE
+============================================================ */
+const MAX_ATTEMPTS = 5;
+const LOCK_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+
+function getLockState() {
+  const raw = localStorage.getItem("vaultLockState");
+  if (!raw) return { attempts: 0, lockUntil: 0 };
+  try {
+    const parsed = JSON.parse(raw);
+    return {
+      attempts: parsed.attempts || 0,
+      lockUntil: parsed.lockUntil || 0
+    };
+  } catch {
+    return { attempts: 0, lockUntil: 0 };
+  }
 }
 
-document.getElementById("mobileImportBtn").onclick = () => {
-  document.getElementById("mobileFileInput").click();
-};
+function setLockState(state) {
+  localStorage.setItem("vaultLockState", JSON.stringify(state));
+}
 
-document.getElementById("mobileFileInput").onchange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  masterPassword = prompt("Mot de passe maître :");
-  if (!masterPassword) return;
-
-  try {
-    const buffer = await file.arrayBuffer();
-    db = await loadVaultFromArrayBuffer(buffer, masterPassword);
-
-    document.getElementById("loadSection").classList.add("hidden");
-    document.getElementById("appSection").classList.remove("hidden");
-    topMenu.classList.remove("hidden");
-
-    showMessage("Coffre chargé (lecture seule)");
-    renderEntries();
-  } catch (err) {
-    console.error(err);
-    showMessage("Mot de passe incorrect ou fichier invalide", "error");
+function isLocked() {
+  const state = getLockState();
+  const now = Date.now();
+  if (state.lockUntil && now < state.lockUntil) {
+    const remaining = Math.ceil((state.lockUntil - now) / 1000 / 60);
+    showMessage(`Trop de tentatives. Réessayez dans ~${remaining} min`, "error");
+    return true;
   }
-};
+  return false;
+}
 
+function registerFailedAttempt() {
+  const state = getLockState();
+  const now = Date.now();
+  let { attempts, lockUntil } = state;
+
+  if (lockUntil && now > lockUntil) {
+    attempts = 0;
+    lockUntil = 0;
+  }
+
+  attempts += 1;
+
+  if (attempts >= MAX_ATTEMPTS) {
+    lockUntil = now + LOCK_DURATION_MS;
+    attempts = 0;
+    showMessage("Trop de tentatives. Verrouillage temporaire.", "error");
+  } else {
+    showMessage(`Mot de passe incorrect (${attempts}/${MAX_ATTEMPTS})`, "error");
+  }
+
+  setLockState({ attempts, lockUntil });
+}
+
+function registerSuccessfulLogin() {
+  setLockState({ attempts: 0, lockUntil: 0 });
+}
 
 /* ============================================================
    VARIABLES GLOBALES
@@ -57,7 +87,7 @@ const themeIcon = document.getElementById("themeIcon");
 const messageContainer = document.getElementById("messageContainer");
 
 /* ============================================================
-   MESSAGES INLINE (C3-A)
+   MESSAGES INLINE
 ============================================================ */
 function showMessage(text, type = "info") {
   const div = document.createElement("div");
@@ -106,10 +136,11 @@ themeToggleBtn.onclick = () => {
 };
 
 /* ============================================================
-   MODAL CRÉATION COFFRE
+   MODAL CRÉATION COFFRE (UI MASQUÉE MAIS CODE CONSERVÉ)
 ============================================================ */
 document.getElementById("openCreateModal").onclick = () => {
-  if (mobileReadOnly) return showMessage("Mode lecture seule sur mobile");
+  // Optionnel : tu peux laisser ce code ou le désactiver
+  // showMessage("Création de nouveau coffre désactivée");
   modal.classList.remove("hidden");
 };
 
@@ -118,6 +149,10 @@ document.getElementById("closeModal").onclick = () => {
 };
 
 document.getElementById("newVaultBtn").onclick = async () => {
+  // Si tu veux vraiment bloquer toute création, tu peux juste :
+  // showMessage("Création de nouveau coffre désactivée");
+  // return;
+
   if (mobileReadOnly) return showMessage("Mode lecture seule sur mobile");
 
   if (!window.showSaveFilePicker) {
@@ -152,6 +187,7 @@ document.getElementById("newVaultBtn").onclick = async () => {
     document.getElementById("appSection").classList.remove("hidden");
     topMenu.classList.remove("hidden");
 
+    registerSuccessfulLogin();
     showMessage("Coffre créé");
     renderEntries();
   } catch (e) {
@@ -161,10 +197,12 @@ document.getElementById("newVaultBtn").onclick = async () => {
 };
 
 /* ============================================================
-   OUVERTURE D’UN COFFRE EXISTANT
+   OUVERTURE D’UN COFFRE EXISTANT (DESKTOP)
 ============================================================ */
 document.getElementById("openVaultBtn").onclick = async () => {
   if (mobileReadOnly) return showMessage("Mode lecture seule sur mobile");
+
+  if (isLocked()) return;
 
   if (!window.showOpenFilePicker) {
     showMessage("Navigateur incompatible (Chrome/Edge requis)", "error");
@@ -194,11 +232,50 @@ document.getElementById("openVaultBtn").onclick = async () => {
     document.getElementById("appSection").classList.remove("hidden");
     topMenu.classList.remove("hidden");
 
+    registerSuccessfulLogin();
     showMessage("Coffre chargé");
     renderEntries();
   } catch (e) {
     console.error(e);
-    showMessage("Mot de passe incorrect ou fichier invalide", "error");
+    registerFailedAttempt();
+  }
+};
+
+/* ============================================================
+   IMPORT MOBILE (LECTURE SEULE)
+============================================================ */
+if (mobileReadOnly) {
+  document.getElementById("mobileImportBtn").classList.remove("hidden");
+}
+
+document.getElementById("mobileImportBtn").onclick = () => {
+  if (isLocked()) return;
+  document.getElementById("mobileFileInput").click();
+};
+
+document.getElementById("mobileFileInput").onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (isLocked()) return;
+
+  masterPassword = prompt("Mot de passe maître :");
+  if (!masterPassword) return;
+
+  try {
+    const buffer = await file.arrayBuffer();
+    db = await loadVaultFromArrayBuffer(buffer, masterPassword);
+
+    document.getElementById("loadSection").classList.add("hidden");
+    document.getElementById("appSection").classList.remove("hidden");
+    topMenu.classList.remove("hidden");
+
+    registerSuccessfulLogin();
+    showMessage("Coffre chargé (lecture seule)");
+    renderEntries();
+  } catch (err) {
+    console.error(err);
+    registerFailedAttempt();
   }
 };
 
@@ -280,7 +357,6 @@ function renderEntries() {
 
   let entries = [...db.entries];
 
-  /* FILTRES */
   entries = entries.filter(e => {
     const matchesText =
       e.name.toLowerCase().includes(query) ||
@@ -294,7 +370,6 @@ function renderEntries() {
     return matchesText && matchesCategory && matchesTag;
   });
 
-  /* TRI */
   entries.sort((a, b) => {
     if (sortBy === "name") return a.name.localeCompare(b.name);
     if (sortBy === "category") return (a.category || "").localeCompare(b.category || "");
@@ -303,7 +378,6 @@ function renderEntries() {
     return 0;
   });
 
-  /* AFFICHAGE */
   entries.forEach(entry => {
     const div = document.createElement("div");
     div.className = "entry";
@@ -331,7 +405,6 @@ function renderEntries() {
       URL : ${entry.url ? `<a href="${entry.url}" target="_blank">${entry.url}</a>` : "-"}<br>
       Catégorie : ${entry.category || "-"}<br>
 
-     
       <div class="entryNotesBlock">
         ${entry.notes ? entry.notes : "<em>Aucune note</em>"}
       </div>
@@ -339,7 +412,7 @@ function renderEntries() {
       ${
         entry.tags?.length
           ? entry.tags.map(t => `<span class="tagBadge">${t}</span>`).join("")
-          : "<em>Aucun</em>"
+          : ""
       }<br><br>
 
       ${!mobileReadOnly ? `
@@ -358,7 +431,7 @@ function renderEntries() {
   attachEntryEvents();
 }
 
-/* Écouteurs de recherche */
+/* Filtres */
 document.getElementById("searchInput").addEventListener("input", renderEntries);
 document.getElementById("searchCategory").addEventListener("change", renderEntries);
 document.getElementById("searchTag").addEventListener("change", renderEntries);
@@ -395,7 +468,6 @@ document.getElementById("addBtn").onclick = async () => {
     updatedAt: new Date().toISOString()
   });
 
-  /* Reset */
   document.getElementById("newName").value = "";
   document.getElementById("newLogin").value = "";
   document.getElementById("newSecret").value = "";
@@ -504,7 +576,6 @@ function turnEntryIntoForm(entry, container) {
     </div>
   `;
 
-  /* SAUVEGARDE */
   document.getElementById("saveEditBtn").onclick = async () => {
     const name = document.getElementById("editName").value.trim();
     const secret = document.getElementById("editSecret").value.trim();
@@ -532,7 +603,6 @@ function turnEntryIntoForm(entry, container) {
     showMessage("Entrée modifiée");
   };
 
-  /* ANNULATION */
   document.getElementById("cancelEditBtn").onclick = () => {
     renderEntries();
   };

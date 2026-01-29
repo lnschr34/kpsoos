@@ -4,24 +4,16 @@
   <meta charset="UTF-8">
   <title>Gestionnaire local sécurisé</title>
 
-  <link rel="manifest" href="manifest.json">
-
   <!-- Styles -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Manifest PWA -->
+  <link rel="manifest" href="manifest.json">
 
   <!-- Material Icons (Filled + Outlined) -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined">
-  <link rel="manifest" href="manifest.json">
-
 </head>
-
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("service-worker.js");
-  }
-</script>
-
 
 <body>
 
@@ -44,6 +36,13 @@
     <div class="container">
       <h2>Votre coffre</h2>
 
+      <button id="mobileImportBtn" class="primary hidden">
+        <span class="material-icons-outlined">upload_file</span>
+        Importer un coffre (.dat)
+      </button>
+
+      <input type="file" id="mobileFileInput" accept=".dat" class="hidden">
+
       <div class="loadActions">
         <div class="card">
           <h3><span class="material-icons-outlined">folder_open</span> Ouvrir un coffre</h3>
@@ -53,25 +52,18 @@
           </button>
         </div>
 
-        <div class="card">
+        <!-- Bloc création de coffre masqué -->
+        <div class="card hidden">
           <h3><span class="material-icons-outlined">create_new_folder</span> Nouveau coffre</h3>
           <button class="secondary" id="openCreateModal">
             <span class="material-icons-outlined">add_box</span> Créer
           </button>
         </div>
-
-        <button id="mobileImportBtn" class="primary hidden">
-          <span class="material-icons-outlined">upload_file</span>
-          Importer un coffre (.dat)
-        </button>
-
-        <input type="file" id="mobileFileInput" accept=".dat" class="hidden">
-
       </div>
     </div>
   </section>
 
-  <!-- MODAL -->
+  <!-- MODAL (conservé mais plus accessible via l’UI) -->
   <div id="modalOverlay" class="overlay hidden">
     <div class="modal">
       <h2>Créer un nouveau coffre</h2>
@@ -166,5 +158,11 @@
 
   <script src="crypto.js"></script>
   <script src="app.js"></script>
+
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
 </body>
 </html>
