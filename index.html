@@ -63,7 +63,7 @@
     </div>
   </section>
 
-  <!-- MODAL (conservé mais plus accessible via l’UI) -->
+  <!-- MODAL (conservé mais inaccessible via l’UI) -->
   <div id="modalOverlay" class="overlay hidden">
     <div class="modal">
       <h2>Créer un nouveau coffre</h2>
@@ -83,7 +83,12 @@
   <section id="appSection" class="hidden">
     <div class="container">
 
-      <!-- SEARCH BAR -->
+      <!-- BOUTON FILTRES (MOBILE SEULEMENT) -->
+      <button id="toggleFilters" class="mobile-only secondary">
+        <span class="material-icons-outlined">filter_list</span> Filtres
+      </button>
+
+      <!-- SEARCH BAR (masquée en mobile, accordéon) -->
       <div class="searchBar">
         <input id="searchInput" placeholder="Rechercher...">
 
