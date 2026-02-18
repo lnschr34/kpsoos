@@ -10,6 +10,16 @@ if (isMobile) {
 }
 
 /* ============================================================
+   VERSION
+============================================================ */
+const APP_VERSION = "v1.0.0"; // à incrémenter quand tu veux
+
+document.addEventListener("DOMContentLoaded", () => {
+  const v = document.getElementById("appVersion");
+  if (v) v.textContent = APP_VERSION;
+});
+
+/* ============================================================
    ANTI-BRUTEFORCE
 ============================================================ */
 const MAX_ATTEMPTS = 5;
@@ -396,10 +406,16 @@ function renderEntries() {
 
       <div class="entrySecretLine">
         <span class="entrySecretLabel">Secret :</span>
-        <span class="entrySecretValue">${entry.secret}</span>
+        <span class="entrySecretValue" data-id="${entry.id}">••••••••••••</span>
+
         <span class="material-icons-outlined copyInlineIcon" data-id="${entry.id}">
           content_copy
         </span>
+
+        <span class="material-icons-outlined revealInlineIcon" data-id="${entry.id}">
+          visibility
+        </span>
+
       </div>
 
       URL : ${entry.url ? `<a href="${entry.url}" target="_blank">${entry.url}</a>` : "-"}<br>
@@ -503,6 +519,29 @@ function attachEntryEvents() {
       }
     };
   });
+
+  /* RÉVÉLATION TEMPORAIRE */
+document.querySelectorAll(".revealInlineIcon").forEach(icon => {
+  icon.onclick = () => {
+    const id = icon.dataset.id;
+    const entry = db.entries.find(e => e.id === id);
+    if (!entry) return;
+
+    const span = document.querySelector(`.entrySecretValue[data-id="${id}"]`);
+    if (!span) return;
+
+    // Révéler
+    span.textContent = entry.secret;
+    icon.textContent = "visibility_off";
+
+    // Masquer après 2 secondes
+    setTimeout(() => {
+      span.textContent = "••••••••••••";
+      icon.textContent = "visibility";
+    }, 2000);
+  };
+});
+
 
   if (mobileReadOnly) return;
 

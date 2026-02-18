@@ -2,6 +2,12 @@
    STYLE V1 — Minimaliste & Épuré (type Apple / Notion)
    Version complète + mode mobile + 3 colonnes + watermark
 --------------------------------------------------------- */
+.appVersion {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--text-muted);
+  align-self: center;
+}
 
 /* ---------------------------------------------------------
    VARIABLES (clair + sombre)
@@ -299,6 +305,18 @@ select:focus {
 .copyInlineIcon:hover {
   opacity: 1;
 }
+
+.revealInlineIcon {
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.revealInlineIcon:hover {
+  opacity: 1;
+}
+
 
 /* ---------------------------------------------------------
    NOTES BLOCK
