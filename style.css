@@ -74,7 +74,7 @@ section {
 
 .container {
   width: 100%;
-  max-width: 1400px;
+  max-width: 1400px; /* élargi pour 3 cartes */
   margin: 0 auto;
 }
 
@@ -174,15 +174,6 @@ select:focus {
   gap: 14px;
   margin-bottom: 30px;
 }
-/* Desktop : bouton filtres toujours caché */
-@media (min-width: 601px) {
-  #toggleFilters {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    pointer-events: none !important;
-  }
-}
 
 /* ---------------------------------------------------------
    TOP MENU
@@ -237,7 +228,7 @@ select:focus {
 }
 
 /* ---------------------------------------------------------
-   ENTRY HEADER
+   ENTRY HEADER (icône + titre)
 --------------------------------------------------------- */
 .entryHeader {
   display: flex;
@@ -259,7 +250,7 @@ select:focus {
 }
 
 /* ---------------------------------------------------------
-   WATERMARK
+   WATERMARK (pictogramme dans le coin)
 --------------------------------------------------------- */
 .entry {
   position: relative;
@@ -278,7 +269,7 @@ select:focus {
 }
 
 /* ---------------------------------------------------------
-   SECRET INLINE (nouvelle version)
+   SECRET INLINE
 --------------------------------------------------------- */
 .entrySecretLine {
   display: flex;
@@ -292,29 +283,10 @@ select:focus {
   color: var(--text-muted);
 }
 
-.entrySecretInput {
-  width: 140px;
-  border: none;
-  background: rgba(0,0,0,0.05);
-  padding: 6px 10px;
-  border-radius: 6px;
+.entrySecretValue {
   font-family: monospace;
   font-size: 15px;
   color: var(--text);
-}
-
-body.dark .entrySecretInput {
-  background: rgba(255,255,255,0.08);
-}
-
-.toggleSecretIcon {
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-}
-
-.toggleSecretIcon:hover {
-  opacity: 1;
 }
 
 .copyInlineIcon {
@@ -345,7 +317,7 @@ body.dark .entryNotesBlock {
 }
 
 /* ---------------------------------------------------------
-   MESSAGES INLINE
+   MESSAGES INLINE (C3-A)
 --------------------------------------------------------- */
 #messageContainer {
   position: fixed;
@@ -411,17 +383,9 @@ body.mobile-readonly .deleteBtn {
 }
 
 /* ---------------------------------------------------------
-   MOBILE — Améliorations iPhone SE
+   MOBILE
 --------------------------------------------------------- */
 @media (max-width: 600px) {
-
-  /* Correction du zoom Safari */
-  input,
-  textarea,
-  select {
-    font-size: 16px !important;
-  }
-
   header {
     font-size: 18px;
     padding: 20px;
@@ -434,24 +398,8 @@ body.mobile-readonly .deleteBtn {
   .modal {
     width: 92%;
   }
-
-  /* Bouton filtres visible uniquement en mobile */
-  .mobile-only {
-    display: inline-flex !important;
-    margin-bottom: 16px;
-  }
-
-  /* Filtres masqués par défaut */
-  .searchBar {
-    display: none;
-  }
-
-  .searchBar.open {
-    display: grid;
-  }
 }
 
-/* Mobile readonly */
 body.mobile-readonly #mobileImportBtn {
   display: inline-flex !important;
 }

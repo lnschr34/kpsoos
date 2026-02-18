@@ -136,9 +136,11 @@ themeToggleBtn.onclick = () => {
 };
 
 /* ============================================================
-   MODAL CRÉATION COFFRE (UI MASQUÉE)
+   MODAL CRÉATION COFFRE (UI MASQUÉE MAIS CODE CONSERVÉ)
 ============================================================ */
 document.getElementById("openCreateModal").onclick = () => {
+  // Optionnel : tu peux laisser ce code ou le désactiver
+  // showMessage("Création de nouveau coffre désactivée");
   modal.classList.remove("hidden");
 };
 
@@ -147,6 +149,10 @@ document.getElementById("closeModal").onclick = () => {
 };
 
 document.getElementById("newVaultBtn").onclick = async () => {
+  // Si tu veux vraiment bloquer toute création, tu peux juste :
+  // showMessage("Création de nouveau coffre désactivée");
+  // return;
+
   if (mobileReadOnly) return showMessage("Mode lecture seule sur mobile");
 
   if (!window.showSaveFilePicker) {
@@ -336,8 +342,9 @@ function getCategoryIcon(category) {
   };
   return icons[category] || "folder";
 }
+
 /* ============================================================
-   AFFICHAGE DES ENTRÉES (NOUVELLE VERSION)
+   AFFICHAGE DES ENTRÉES
 ============================================================ */
 function renderEntries() {
   const container = document.getElementById("entries");
@@ -389,18 +396,7 @@ function renderEntries() {
 
       <div class="entrySecretLine">
         <span class="entrySecretLabel">Secret :</span>
-
-        <!-- Faux champ (longueur masquée) -->
-        <span class="entrySecretFake" data-id="${entry.id}">
-          ••••••••••
-        </span>
-
-        <!-- Icône œil -->
-        <span class="material-icons-outlined toggleSecretIcon" data-id="${entry.id}">
-          visibility
-        </span>
-
-        <!-- Copier -->
+        <span class="entrySecretValue">${entry.secret}</span>
         <span class="material-icons-outlined copyInlineIcon" data-id="${entry.id}">
           content_copy
         </span>
@@ -416,7 +412,7 @@ function renderEntries() {
       ${
         entry.tags?.length
           ? entry.tags.map(t => `<span class="tagBadge">${t}</span>`).join("")
-          : " "
+          : ""
       }<br><br>
 
       ${!mobileReadOnly ? `
@@ -435,20 +431,58 @@ function renderEntries() {
   attachEntryEvents();
 }
 
+/* Filtres */
+document.getElementById("searchInput").addEventListener("input", renderEntries);
+document.getElementById("searchCategory").addEventListener("change", renderEntries);
+document.getElementById("searchTag").addEventListener("change", renderEntries);
+document.getElementById("sortBy").addEventListener("change", renderEntries);
+
 /* ============================================================
-   BARRE DE RECHERCHE MOBILE (loupe + filtre)
+   AJOUT D’UNE ENTRÉE
 ============================================================ */
-const toggleFilters = document.getElementById("toggleFilters");
-const searchBar = document.querySelector(".searchBar");
+document.getElementById("addBtn").onclick = async () => {
+  if (mobileReadOnly) return;
 
-if (toggleFilters) {
-  toggleFilters.onclick = () => {
-    searchBar.classList.toggle("open");
-  };
-}
+  const name = document.getElementById("newName").value.trim();
+  const secret = document.getElementById("newSecret").value.trim();
+  const category = document.getElementById("newCategory").value;
+
+  if (!name || !secret || !category) {
+    showMessage("Nom, code et catégorie requis", "warning");
+    return;
+  }
+
+  const selectedTags = Array.from(document.querySelectorAll(".tagCheckbox:checked"))
+    .map(cb => cb.value);
+
+  db.entries.push({
+    id: crypto.randomUUID(),
+    name,
+    login: document.getElementById("newLogin").value.trim(),
+    secret,
+    category,
+    url: document.getElementById("newUrl").value.trim(),
+    notes: document.getElementById("newNotes").value,
+    tags: selectedTags,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  });
+
+  document.getElementById("newName").value = "";
+  document.getElementById("newLogin").value = "";
+  document.getElementById("newSecret").value = "";
+  document.getElementById("newUrl").value = "";
+  document.getElementById("newCategory").value = "";
+  document.getElementById("newNotes").value = "";
+  document.querySelectorAll(".tagCheckbox").forEach(cb => cb.checked = false);
+
+  renderEntries();
+  await saveVaultDirect();
+  showMessage("Entrée ajoutée");
+};
 
 /* ============================================================
-   ÉVÉNEMENTS SUR LES ENTRÉES (NOUVELLE VERSION)
+   ÉVÉNEMENTS SUR LES ENTRÉES
 ============================================================ */
 function attachEntryEvents() {
 
@@ -466,29 +500,6 @@ function attachEntryEvents() {
         showMessage("Code copié");
       } catch {
         showMessage("Impossible de copier", "error");
-      }
-    };
-  });
-
-  /* AFFICHER / MASQUER LE SECRET */
-  document.querySelectorAll(".toggleSecretIcon").forEach(icon => {
-    icon.onclick = () => {
-      const id = icon.dataset.id;
-      const entry = db.entries.find(e => e.id === id);
-      const fakeField = icon.parentElement.querySelector(".entrySecretFake");
-
-      if (!entry) return;
-
-      const isHidden = fakeField.dataset.visible !== "true";
-
-      if (isHidden) {
-        fakeField.textContent = entry.secret;
-        fakeField.dataset.visible = "true";
-        icon.textContent = "visibility_off";
-      } else {
-        fakeField.textContent = "••••••••••";
-        fakeField.dataset.visible = "false";
-        icon.textContent = "visibility";
       }
     };
   });
@@ -518,6 +529,7 @@ function attachEntryEvents() {
     };
   });
 }
+
 /* ============================================================
    FORMULAIRE D’ÉDITION INLINE
 ============================================================ */
@@ -595,7 +607,3 @@ function turnEntryIntoForm(entry, container) {
     renderEntries();
   };
 }
-
-/* ============================================================
-   FIN DU FICHIER
-============================================================ */
